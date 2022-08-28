@@ -10,7 +10,8 @@ const campground = require('./models/campground');
 const { urlencoded } = require('express');
 const catchAsync = require('./utils/catchAsync')
 const ExpressError = require('./utils/ExpressError')
-const { campgroundSchema } = require('./schemas.js')//Used to validate information
+const { campgroundSchema, reviewSchema } = require('./schemas.js')//Used to validate information
+const Review = require('./models/review')
 
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"))
@@ -30,6 +31,15 @@ const validateCampground = (req, res, next) => {
         throw new ExpressError(msg, 400)
     } else next();
 }
+
+const validateReview = (req, res, next) => {
+    const { error } = reviewSchema.validate(req.body);
+    if (error) {
+        const msg = error.details.map(ele => ele.message).join(',')
+        throw new ExpressError(msg, 400)
+    } else next();
+}
+
 
 app.listen(8080, () => {
     console.log('Connected On Port 8080');
@@ -59,7 +69,7 @@ app.post('/campgrounds', validateCampground, catchAsync(async (req, res, next) =
 
 app.get('/campgrounds/:id', catchAsync(async (req, res, next) => {
     const { id } = req.params;
-    const campground = await Campground.findById(id);
+    const campground = await Campground.findById(id).populate('reviews');
     res.render('campgrounds/show', { campground })
 }))
 
@@ -79,6 +89,23 @@ app.delete('/campgrounds/:id', catchAsync(async (req, res, next) => {
     const { id } = req.params;
     await Campground.findByIdAndDelete(id);
     res.redirect('/campgrounds')
+}))
+
+app.post("/campgrounds/:id/reviews", validateReview, catchAsync(async (req, res, next) => {
+    const { id } = req.params;
+    const campground = await Campground.findById(id);
+    const review = new Review(req.body.review);
+    campground.reviews.push(review);
+    await review.save();
+    await campground.save();
+    res.redirect(`/campgrounds/${campground.id}`);
+}))
+
+app.delete('/campgrounds/:id/reviews/:reviewId', catchAsync(async (req, res, next) => {
+    const { id, reviewId } = req.params;
+    await Campground.findByIdAndUpdate(id, { $pull: { reviews: reviewId } })
+    await Review.findByIdAndDelete(reviewId);
+    res.redirect(`/campgrounds/${id}`)
 }))
 
 app.all('*', (req, res, next) => {
