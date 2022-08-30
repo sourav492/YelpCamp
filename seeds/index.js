@@ -22,7 +22,12 @@ const seedDB = async () => {
             author: '630cd866852b51758f86206c',
             location: `${cities[random1000].city}, ${cities[random1000].state}`,
             title: `${sample(descriptors)} ${sample(places)}`,
-            image: 'https://random.imagecdn.app/500/150',
+            images: [
+                {
+                    url: 'https://res.cloudinary.com/dgp27un81/image/upload/v1661863547/YelpCamp/xfr5g2blp3ksohxicpmm.jpg',
+                    filename: 'YelpCamp/xfr5g2blp3ksohxicpmm',
+                }
+            ],
             description: "Lorem ipsum dolor sit amet consectetur, adipisicing elit. Non rerum dignissimos voluptate deserunt nihil nesciunt. Ex, animi temporibus nostrum molestias, tempore nihil earum quaerat, vero numquam sint dolor? Laudantium, commodi?",
             price
         })

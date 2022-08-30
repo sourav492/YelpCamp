@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV !== 'production') {
+    require('dotenv').config() //It means if we are in development mode then use the .env file for the credentials  
+}
 const express = require('express');
 const app = express();
 const methodOverride = require('method-override');

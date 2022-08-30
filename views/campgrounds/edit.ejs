@@ -4,8 +4,8 @@
     <div class="row">
         <h1 class="text-center">Edit Campground</h1>
         <div class="col-6 offset-3">
-            <form action="/campgrounds/<%= campground.id%>?_method=PUT " method="post" novalidate
-                class="validated-form">
+            <form action="/campgrounds/<%= campground.id%>?_method=PUT " method="post" novalidate class="validated-form"
+                enctype="multipart/form-data">
                 <div class="mb-3">
                     <label class="form-label" for="title">Title</label>
                     <input class="form-control" type="text" name="campground[title]" id="title"
@@ -28,10 +28,11 @@
                         Required Field
                     </div>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label" for="image">Image URL</label>
-                    <input class="form-control" type="text" name="campground[image]" id="image"
-                        value="<%= campground.image %> " required>
+                <div class="mb-3 custom-file">
+                    <label class="form-label" for="image">Add Images</label>
+                    <label class="custom-file-label" for="image"></label>
+                    <input class="form-control custom-file-input custom-file-label" type="file" name="image" id="image"
+                        multiple>
                     <div class="valid-feedback">
                         Looks good!
                     </div>
@@ -64,7 +65,16 @@
                         Required Field
                     </div>
                 </div>
+                <div class="mb-3">
+                    <% campground.images.forEach((img,i)=>{%>
+                        <img src="<%=img.thumbnail%>" class="img-thumbnail" alt="">
+                        <div class="form-check-inline">
+                            <input type="checkbox" name="deleteImages[]" id="image-<%=i%>" value="<%=img.filename%>">
+                        </div>
+                        <label for="image-<%=i%>">Delete?</label>
+                        <% }) %>
 
+                </div>
                 <div class=" mb-3">
                     <button class="btn btn-info">Update Campground</button>
                 </div>
