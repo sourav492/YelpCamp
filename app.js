@@ -16,12 +16,15 @@ const LocalStrategy = require('passport-local')
 const User = require('./models/user')
 const mongoSanitize = require('express-mongo-sanitize');
 const helmet = require('helmet');
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/yelp-camp'
+const MongoDBStore = require('connect-mongo');
+const secret = process.env.SECRET || 'thisshouldbeasecret!';
 
 const campgroundRoutes = require('./routes/campgrounds')
 const reviewRoutes = require('./routes/reviews')
 const userRoutes = require('./routes/user')
 
-mongoose.connect('mongodb://localhost:27017/yelp-camp')
+mongoose.connect(dbUrl)
 const db = mongoose.connection;
 db.on("error", console.error.bind(console, "connection error"))
 db.once("open", () => {
@@ -38,7 +41,7 @@ app.use(mongoSanitize())
 
 const sessionConfig = {
     name:'session',
-    secret: 'thisshouldbeasecret!',
+    secret,
     resave: false,  //Set this to make depricated warnings go away
     saveUninitialized: true,//Set this to make depricated warnings go away
     cookie: {//Imp
@@ -46,7 +49,14 @@ const sessionConfig = {
         // secure:true,
         expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
         maxAge: 1000 * 60 * 60 * 24 * 7
-    }
+    },
+    store: MongoDBStore.create({
+        mongoUrl:dbUrl,
+        touchAfter: 24*60*60,
+        crypto:{
+            secret
+        }
+    })
 }
 app.use(session(sessionConfig))//This line should be before passport.session()
 app.use(flash())
