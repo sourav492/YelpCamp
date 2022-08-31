@@ -133,9 +133,7 @@ app.use('/campgrounds', campgroundRoutes)
 app.use('/campgrounds/:id/reviews', reviewRoutes)
 app.use('/', userRoutes);
 
-app.listen(8080, () => {
-    console.log('Connected On Port 8080');
-})
+
 
 
 
@@ -154,4 +152,9 @@ app.use((err, req, res, next) => {
         err.message = 'Oh No, Something Went Wrong!'
     }
     res.status(statusCode).render('error', { err })
+})
+
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+    console.log(`Connected On Port ${port}`);
 })
